@@ -6,6 +6,8 @@ from tkinter import Menu
 import json
 import copy
 
+# test
+
 def fetch_eq_dir():
     global eq_dir
     conn = create_connection('./stables.db')
