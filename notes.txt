@@ -1,0 +1,59 @@
+GOALS:
+    -Some sort of weird bug couldnt open inventory
+    -When 'selected_char.get()' == 'ALL', a ENTER key will execute a full query on all rows where itemName matches input_field
+    -Now when select tab is changed, re-query
+    -on close or change, delete table
+    -Refactor 'delete' + 'insert' inventories into a transaction
+    -Would like to automatically sort all things in alphabetical by default
+        -Whenever name tab is clicked, this is default scenario
+        -Whenever class is selected, and so on
+    -INVENTORY PARSE BAYBEEE!!!!
+        -SKELETON DONE for 'inventory_window'
+        -Now, we need to work on inventory pulldown menu:
+            -def 'create_inventory_db(name, eq_dir)'
+                -If param is empty, delete all tables and Parse. Else 'char_names_array' = [name]
+                -Create char_name list
+                    -'char_names_array' = [char['name'] for char in characters_array]
+                -Use list to delete all rows in a given table
+                    -I think we stick with one table to avoid doing a MASS join
+                -Use list to parse EQ DIR
+        -We can do a seperate window for for inventory entirely, or have a pulldown for inventory and do all in one page
+        -Inventory:
+            -Popup new window:
+                -INVENTORY menu:
+                    -Food for thought: Omit parsing / storing of lines where 'EMPTY' == true?
+                    -Parse ALL char's inventory files 
+                        -Popup: 'This will delete the entire existing DB and re-write it for all chars. Are you SURE? Y / N buttons'
+                        -If N, close 
+                        -If Y, would be cool to have some sort of progress bar and console readout
+                -Right clicking a char has:
+                    -Open character inventory
+                    -Parse Character Inventory File
+                -Has a pulldown for ALL, then all charnames
+                -When you click the main invetory button window, it opens the page with 'ALL' pulldown selected
+                -When you right click a char and open inv, it opens window with 'charName' tab selected
+                -When an individual char is selected, it auto renders the page / inventory
+                -When 'ALL' is selected, it does NOT render the page automatically (unless somehow its giga fast with SQLite, but i doubt it)
+
+   
+
+        
+       
+           
+
+    
+   
+   
+    
+   
+    
+  
+   
+    
+   
+    
+   
+   
+    
+    
+   
