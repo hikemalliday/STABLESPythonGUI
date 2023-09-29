@@ -704,7 +704,7 @@ def create_menus():
     inventory_menu = Menu(menu_bar, tearoff=0)
     menu_bar.add_cascade(label="Inventory", menu=inventory_menu)
     inventory_menu.add_command(label="Open Inventory Reader", command=lambda: inventory_window('All'))
-    inventory_menu.add_command(label="Parse All Inventory Files", command=lambda: create_inventory('All', 'c:/r99'))
+    inventory_menu.add_command(label="Parse All Inventory Files", command=lambda: create_inventory('All', eq_dir))
     inventory_menu.add_command(label="Delete Entire Inventory DB", command=lambda: delete_inventory_db('All'))
     
 def create_columns():
