@@ -385,6 +385,10 @@ def edit_character_window(name):
         label.grid(row=labels.index(label_text), column=0, padx=10, pady=5, sticky="w")
 
         entry_widgets[label_text] = Entry(edit_char_window, width=30)
+        print('label text test')
+        print(entry_widgets[label_text])
+        if character_to_edit.get(label_text, '') == None:
+            character_to_edit[label_text] = 'None'
         entry_widgets[label_text].insert(0, character_to_edit.get(label_text, ''))
         entry_widgets[label_text].grid(row=labels.index(label_text), column=1, padx=10, pady=5, sticky="w")
 
@@ -408,6 +412,11 @@ def edit_character_window(name):
         'Wizard': 14
     }
         character_data = {label: entry_widgets[label].get() for label in labels}
+        # Logic to typo handle 'Class' here
+        if character_data['Class'] == 'Magician':
+            character_data['Class'] = 'Mage'
+        if character_data['Class'] == 'Shadowknight':
+            character_data['Class'] = 'Shadow Knight'
         char_class_name = character_data['Class']
         char_class_id = class_id_mapping.get(char_class_name, None)
         if char_class_id is not None:
@@ -495,6 +504,10 @@ def create_new_character_window():
             'Wizard': 14
         }
         character_data = {label: entry_widgets[label].get() for label in labels}
+        if character_data['Class'] == 'Magician':
+            character_data['Class'] = 'Mage'
+        if character_data['Class'] == 'Shadowknight':
+            character_data['Class'] = 'Shadow Knight'
         insert_new_character(character_data)
         char_class_name = character_data['Class']
         char_class_id = class_id_mapping.get(char_class_name, None)
@@ -818,6 +831,7 @@ if __name__ == '__main__':
     create_menus()
     sort_column("Name", False)
     # delete_inventory_db('All')
+    # import_json_db()
     fetch_eq_dir()
     root.mainloop()
 
