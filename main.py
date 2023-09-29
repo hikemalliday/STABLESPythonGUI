@@ -4,16 +4,16 @@ import sqlite3
 from sqlite3 import Error
 from tkinter import Menu
 import json
-import copy
-
-# test
 
 def fetch_eq_dir():
     global eq_dir
     conn = create_connection('./stables.db')
     c = conn.cursor()
     c.execute("""SELECT * FROM eqDir""")
-    eq_dir = c.fetchall()[0][0]
+    try:
+        eq_dir = c.fetchall()[0][0]
+    except Exception as e:
+        print('no eq DIR set yet')
     print(eq_dir)
 
 def row_right_click(e):
@@ -39,7 +39,7 @@ def menu_item_right_click(option, name):
         inventory_window(name)
         pass
     elif option == 'Parse Inventory File':
-        create_inventory(name, 'c:/r99')
+        create_inventory(name, eq_dir)
         print('parse inventory char right click')
         pass
 
