@@ -1,4 +1,8 @@
-
+TODO:
+-Optimize the camp out finder
+    -Do a batch UPDATE
+-Since eq_dir is global, can probably remove EQ_dir from function params
+-Add lvl col
 -Timestamps so i dont re parse
 -open individual inventory is bugging out
 -Maybe add individual char query
@@ -6,3 +10,27 @@
 -Filters for item searches
     -Advanced filtering
 -Parse UI files for modified chars, create chars based off of that
+-Run some parses to determine average line length
+    -Global vars:
+        -average line size per file: 
+        -average line size master:
+    -Start counting chars, when '\n' is found, push counter to array, reset counter to 0
+    -Compare filesize to number of lines
+
+with open("my_file.txt", "r") as f:
+    f.seek(0, os.SEEK_END)
+
+    # Read the file in reverse order
+    for i in range(f.tell(), 0, -1):
+        line = f.readline()
+
+        # Process the line
+        pass
+
+-Location parse:
+    -Right click on charname, 'get camp location'
+        -get_camp_location(name)
+    -log_file = f'{eq_dir}/Logs/eqlog_{name}_P1999PVP'
+    eqlog_Grixus_P1999PVP
+    c:/r99/Logs/eqlog_Grixus_P1999PVP'
+    C:\r99\Logs\eqlog_Grixus_P1999PVP.txt
