@@ -4,6 +4,8 @@ import sqlite3
 from sqlite3 import Error
 from tkinter import Menu
 import json
+import os
+from tkinter import scrolledtext
 
 def fetch_eq_dir():
     global eq_dir
@@ -23,11 +25,12 @@ def row_right_click(e):
         right_click_menu.post(e.x_root, e.y_root)
         name = my_tree.item(item, "values")[0]
         char_class = my_tree.item(item, "values")[1]
-        right_click_menu.entryconfig("Edit", command=lambda: menu_item_right_click("Edit", name, ''))
-        right_click_menu.entryconfig("Delete", command=lambda: menu_item_right_click("Delete", name, ''))
-        right_click_menu.entryconfig("Open Inventory", command=lambda: menu_item_right_click("Open Inventory", name, ''))
-        right_click_menu.entryconfig("Parse Inventory File", command=lambda: menu_item_right_click("Parse Inventory File", name, ''))
+        right_click_menu.entryconfig("Edit", command=lambda: menu_item_right_click("Edit", name, '', ''))
+        right_click_menu.entryconfig("Delete", command=lambda: menu_item_right_click("Delete", name, '', ''))
+        right_click_menu.entryconfig("Open Inventory", command=lambda: menu_item_right_click("Open Inventory", name, '', ''))
+        right_click_menu.entryconfig("Parse Inventory File", command=lambda: menu_item_right_click("Parse Inventory File", name, '', eq_dir))
         right_click_menu.entryconfig("Copy UI", command=lambda c=char_class: menu_item_right_click("Copy UI", name, char_class, eq_dir))
+        right_click_menu.entryconfig("Get Camp Location", command=lambda : menu_item_right_click("Get Camp Location", name, '', eq_dir))
                
 def menu_item_right_click(option, name, char_class, eq_dir):
     if option == 'Edit':
@@ -44,8 +47,9 @@ def menu_item_right_click(option, name, char_class, eq_dir):
          
     elif option == 'Copy UI':
         copy_ui(eq_dir, char_class, name)
-        
-
+    
+    elif option == 'Get Camp Location':
+        get_camp_location(eq_dir, name)
         
 class_options = [
         'All',
@@ -103,15 +107,108 @@ right_click_menu.add_command(label = "Delete")
 right_click_menu.add_command(label = "Open Inventory")
 right_click_menu.add_command(label = "Parse Inventory File")
 right_click_menu.add_command(label = "Copy UI")
+right_click_menu.add_command(label = "Get Camp Location")
 
-def return_eq_dir():
-    return eq_dir
+
+def get_camp_location(eq_dir = eq_dir, name = 'All'):
+    # need to add a checker for if name == 'All'
+    char_names = []
+    zone_char_pairs = []
+    if name == 'All':
+        # BACK TO HERE
+        char_names = [character['Name'] for character in characters_array]
+    else:
+        char_names = [character['Name'] for character in characters_array if character['Name'] == name]
+    
+    popup = Toplevel()
+    popup.title('Parsing Progress')
+    text_widget = scrolledtext.ScrolledText(popup, wrap=WORD)
+    text_widget.pack(fill=BOTH, expand=True) 
+    text_widget.insert(1.0, 'Parsing in progress, please wait til completion...\n')
+    text_widget.update()
+
+    counter = 0
+    
+    for char_name in char_names:
+        if char_name == 'All':
+            continue
+        log_file_path = f'{eq_dir}/Logs/eqlog_{char_name}_P1999PVP.txt'
+        found_entered = False
+        try:
+            # Open the log file in binary mode
+            with open(log_file_path, 'rb') as log_file:
+                # Seek to the end of the file
+                log_file.seek(0, os.SEEK_END)
+                # Read the file in reverse order
+                while log_file.tell() > 0:
+                    log_file.seek(-1, os.SEEK_CUR)
+                    # Read a byte
+                    char = log_file.read(1).decode('utf-8')
+                    # If it's a newline character, it's the end of a line
+                    if char == '\n':
+                        counter += 1
+                        log_file.seek(-2, os.SEEK_CUR)
+                    # Read and print the line in reverse order
+                    line = ""
+                    while char != '\n' and log_file.tell() > 0:
+                        line = char + line
+                        log_file.seek(-2, os.SEEK_CUR)
+                        char = log_file.read(1).decode('utf-8')
+                        
+                        if 'entered' in line:
+                        # Initialize a variable to store the zone name
+                            zone_name = line[line.index('entered') + 8: line.index(".")]
+                            text_widget.insert(1.0, f'Character "{char_name}" is camped out in: {zone_name}\n')
+                            text_widget.update()
+                            zone_char_pairs.append([zone_name, char_name])
+                            found_entered = True
+                            # Now we need to update the object locally
+                            character_to_edit = None
+                            for character in characters_array:
+                                if character['Name'] == char_name:
+                                    character_to_edit = character
+                                    break       
+                            if character_to_edit is None:
+                                text_widget.insert(1.0, f"Character with name '{char_name}' not found\n")
+                                text_widget.update()
+                            character_to_edit['Location'] = zone_name
+                            break
+                    if found_entered:
+                        break
+                    if counter == 10000:
+                        break
+        except FileNotFoundError as e:
+            text_widget.insert(END, f'File not found: {e}\n')
+            text_widget.update()
+        except PermissionError as e:
+            text_widget.insert(END, f'Permission error: {e}\n')
+            text_widget.update()
+        except Exception as e:
+            text_widget.insert(END, f'An error occurred: {e}\n')
+            text_widget.update()
+
+    conn = create_connection('./stables.db')
+    c = conn.cursor()
+    for zone_name, char_name in zone_char_pairs:
+        text_widget.insert(1.0, f'Updating: {zone_name}, {char_name}\n')
+        text_widget.update()
+        c.execute("UPDATE characters SET location = ? WHERE charName = ?", (zone_name, char_name))
+    conn.commit()
+    conn.close()
+    query_characters_array('e', selected_class.get())
+    text_widget.insert(1.0, 'Parsing complete!\n')
+    text_widget.update()
+
+
+
+
+
 
 def copy_ui(eq_dir, char_class, name):
     print('eq_dir', eq_dir)
     print('char_class', char_class)
     print('name', name)
-    # Read the correct UI file via char_class:
+    
     try:
         with open(f'./classUIs/UI_{char_class}_P1999PVP.ini', 'r') as file:
             ui_file = file.read()
@@ -128,14 +225,11 @@ def copy_ui(eq_dir, char_class, name):
         print('UI Copy successful?')
     except FileNotFoundError as e:
         print(f'File not found: {e}')
-    
     except PermissionError as e:
         print(f'Permission error: {e}')
-    
     except Exception as e:
         print(f'An error occurred: {e}')
 
-    
 def eq_directory():
     global eq_dir_window_open
     global eq_dir
@@ -734,6 +828,7 @@ def create_menus():
     # Add items to the File menu
     file_menu.add_command(label="New Character", command=create_new_character_window)
     file_menu.add_command(label="Set EQ dir", command=eq_directory)
+    file_menu.add_command(label="Get All Camp Locations", command=get_camp_location)
     file_menu.add_command(label="Exit", command=exit_app)
     # Create an Edit menu (just for demonstration)
     inventory_menu = Menu(menu_bar, tearoff=0)
