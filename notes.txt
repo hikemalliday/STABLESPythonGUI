@@ -1,0 +1,8 @@
+
+-Timestamps so i dont re parse
+-open individual inventory is bugging out
+-Maybe add individual char query
+-Add query for individual char_list
+-Filters for item searches
+    -Advanced filtering
+-Parse UI files for modified chars, create chars based off of that
