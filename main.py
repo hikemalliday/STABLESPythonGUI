@@ -22,27 +22,31 @@ def row_right_click(e):
         my_tree.selection_set(item)
         right_click_menu.post(e.x_root, e.y_root)
         name = my_tree.item(item, "values")[0]
-        right_click_menu.entryconfig("Edit", command=lambda n=name: menu_item_right_click("Edit", n))
-        right_click_menu.entryconfig("Delete", command=lambda n=name: menu_item_right_click("Delete", n))
-        right_click_menu.entryconfig("Open Inventory", command=lambda n=name: menu_item_right_click("Open Inventory", n))
-        right_click_menu.entryconfig("Parse Inventory File", command=lambda n=name: menu_item_right_click("Parse Inventory File", n))
-        print(name)
-
-def menu_item_right_click(option, name):
+        char_class = my_tree.item(item, "values")[1]
+        right_click_menu.entryconfig("Edit", command=lambda: menu_item_right_click("Edit", name, ''))
+        right_click_menu.entryconfig("Delete", command=lambda: menu_item_right_click("Delete", name, ''))
+        right_click_menu.entryconfig("Open Inventory", command=lambda: menu_item_right_click("Open Inventory", name, ''))
+        right_click_menu.entryconfig("Parse Inventory File", command=lambda: menu_item_right_click("Parse Inventory File", name, ''))
+        right_click_menu.entryconfig("Copy UI", command=lambda c=char_class: menu_item_right_click("Copy UI", name, char_class, eq_dir))
+               
+def menu_item_right_click(option, name, char_class, eq_dir):
     if option == 'Edit':
         edit_character_window(name)
-        pass
+        
     elif option == 'Delete':
         delete_character(name)
-        pass
+        
     elif option == 'Open Inventory':
         inventory_window(name)
-        pass
+        
     elif option == 'Parse Inventory File':
         create_inventory(name, eq_dir)
-        print('parse inventory char right click')
-        pass
+         
+    elif option == 'Copy UI':
+        copy_ui(eq_dir, char_class, name)
+        
 
+        
 class_options = [
         'All',
         'Bard',
@@ -80,7 +84,6 @@ tree_scrollbar = Scrollbar(root, orient="vertical", command=my_tree.yview)
 tree_scrollbar.grid(row=1, column=8, sticky="ns")
 my_tree.configure(yscrollcommand=tree_scrollbar.set)
 
-
 select_class_frame = LabelFrame(root, text="Select Class")
 select_class_frame.grid(row=0, column=0, padx=5, pady=5, sticky="W")
 select_class_label = Label(select_class_frame, text="CLASS:", anchor="w")
@@ -99,7 +102,40 @@ right_click_menu.add_command(label = "Edit")
 right_click_menu.add_command(label = "Delete")
 right_click_menu.add_command(label = "Open Inventory")
 right_click_menu.add_command(label = "Parse Inventory File")
+right_click_menu.add_command(label = "Copy UI")
 
+def return_eq_dir():
+    return eq_dir
+
+def copy_ui(eq_dir, char_class, name):
+    print('eq_dir', eq_dir)
+    print('char_class', char_class)
+    print('name', name)
+    # Read the correct UI file via char_class:
+    try:
+        with open(f'./classUIs/UI_{char_class}_P1999PVP.ini', 'r') as file:
+            ui_file = file.read()
+            print('test ui 1')
+        with open(f'{eq_dir}/UI_{name}_P1999PVP.ini', 'w') as file:
+            file.write(ui_file)
+            print('test ui 2')
+        with open(f'./classUIs/{char_class}_P1999PVP.ini', 'r') as file:
+            ui_file2 = file.read()
+            print('test ui 3')
+        with open(f'{eq_dir}/{name}_P1999PVP.ini', 'w') as file:
+            file.write(ui_file2)
+            print('test ui 4')
+        print('UI Copy successful?')
+    except FileNotFoundError as e:
+        print(f'File not found: {e}')
+    
+    except PermissionError as e:
+        print(f'Permission error: {e}')
+    
+    except Exception as e:
+        print(f'An error occurred: {e}')
+
+    
 def eq_directory():
     global eq_dir_window_open
     global eq_dir
@@ -571,7 +607,6 @@ def create_connection(db_file):
     conn = None
     try:
         conn = sqlite3.connect(db_file)
-        print(sqlite3.version)
         return conn
     except Error as e:
         print(e)
@@ -738,7 +773,7 @@ def import_json_db():
         
         for character in json_db:
             # Map character class names to class IDs
-            class_name = character['charclass']
+            class_name = character['charClass']
             class_id_mapping = {
                 'Bard': 1,
                 'Cleric': 2,
@@ -762,10 +797,10 @@ def import_json_db():
                     INSERT INTO characters (charName, classID, emuAccount, emuPassword, account, password, server, location)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
-                    character['name'],
+                    character['charName'],
                     class_id,
-                    character['emuaccount'],
-                    character['emupassword'],
+                    character['emuAccount'],
+                    character['emuPassword'],
                     character['account'],
                     character['password'],
                     character['server'],
@@ -825,11 +860,11 @@ selected_class.trace("w", selected_class_changed)
 if __name__ == '__main__':
     create_tables()
     fetch_all_characters()
-    fetch_row_test()
     create_columns()
     create_headings()
     create_menus()
     sort_column("Name", False)
+    # delete_all_characters()
     # delete_inventory_db('All')
     # import_json_db()
     fetch_eq_dir()
