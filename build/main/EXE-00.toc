@@ -64,7 +64,7 @@
  [],
  False,
  False,
- 1696115019,
+ 1696268774,
  [('run.exe',
    'C:\\Users\\mikeg\\Desktop\\projects\\STABLESPythonGUI\\.venv\\Lib\\site-packages\\PyInstaller\\bootloader\\Windows-64bit-intel\\run.exe',
    'EXECUTABLE')],

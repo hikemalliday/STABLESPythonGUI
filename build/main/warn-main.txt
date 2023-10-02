@@ -24,4 +24,4 @@ missing module named _frozen_importlib_external - imported by importlib._bootstr
 excluded module named _frozen_importlib - imported by importlib (optional), importlib.abc (optional)
 missing module named _posixsubprocess - imported by subprocess (conditional)
 missing module named fcntl - imported by subprocess (optional)
-missing module named sqlite3.Error - imported by sqlite3 (top-level), C:\Users\mikeg\Desktop\projects\STABLESPythonGUI\main.py (top-level)
+missing module named sqlite3.Error - imported by sqlite3 (top-level), C:\Users\mikeg\Desktop\projects\STABLESPythonGUI\main.py (top-level), mymodules (top-level), spells (top-level)
