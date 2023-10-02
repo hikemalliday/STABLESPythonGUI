@@ -1,6 +1,17 @@
 TODO:
--Optimize the camp out finder
-    -Do a batch UPDATE
+-if 2 chars are the same name, this creates an edit anomoly. We need to create some sort of unique match, or match on all rows to soften the blow
+-remove console logs from inventory funcs
+WHERE WE LEFT OFF:
+    -Need to try to remove some global vars so we can modulize things
+-Change array param to characters_array
+-refactor and remove class numbers
+-right click menu for spell books, as well as ALL menu
+-Remove parameter for 'create_connection()'
+-Refactor Right click options funcs
+-Add sorting for iventory
+-add 'Missing Spells'
+-use 'show_please_wait_window()' for camp parser as well
+-ask kas for OOP advice
 -Since eq_dir is global, can probably remove EQ_dir from function params
 -Add lvl col
 -Timestamps so i dont re parse
@@ -9,28 +20,33 @@ TODO:
 -Add query for individual char_list
 -Filters for item searches
     -Advanced filtering
--Parse UI files for modified chars, create chars based off of that
--Run some parses to determine average line length
-    -Global vars:
-        -average line size per file: 
-        -average line size master:
-    -Start counting chars, when '\n' is found, push counter to array, reset counter to 0
-    -Compare filesize to number of lines
 
-with open("my_file.txt", "r") as f:
-    f.seek(0, os.SEEK_END)
+-open window and 'query_char_inventory(rightclickedname)'
+-takes fetch from WHERE name = 'x' and appends to global inventory_array
+-calls filltablewithinventoryarray(), which fills table with global array (probably could have just passed the array in)
+-So what do we have at this point?
+    -inventory_array = [charname items]
 
-    # Read the file in reverse order
-    for i in range(f.tell(), 0, -1):
-        line = f.readline()
+-need to create a master object for 'class_spells'
+{'necro': (2d list), ...etc}
 
-        # Process the line
-        pass
+-need to create a 'spellbook object'
+{'charname': (2d list), ...etc}
 
--Location parse:
-    -Right click on charname, 'get camp location'
-        -get_camp_location(name)
-    -log_file = f'{eq_dir}/Logs/eqlog_{name}_P1999PVP'
-    eqlog_Grixus_P1999PVP
-    c:/r99/Logs/eqlog_Grixus_P1999PVP'
-    C:\r99\Logs\eqlog_Grixus_P1999PVP.txt
+-char in 'spellbook object':
+    -char_class = 'char_classes[char]' 
+    -char= 2dlist
+    -iterate through class_spells[char_class]
+        -if spell not in spellbook[char_name]:
+            -spell.insert(0, char_name)
+            -missing_spells.append(spell)
+
+-We can either change the tuples inside 'class_spells' to lists, or change the lists in 'character_spellsbooks' to tuples
+-CLASS SPELLS = int
+-CHARACTER SPELLS = string
+
+-Should store missings spells in DB
+-When missing spells window is opened, query is performed
+-At the moment, we are doing queries for diff chars missing spells
+-Also, for the pulldown list for missing spells, we should fetch all the 'charNames' and populate list with that
+-Not all missing spells are being created like they sohuld be

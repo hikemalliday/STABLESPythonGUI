@@ -6,17 +6,9 @@ from tkinter import Menu
 import json
 import os
 from tkinter import scrolledtext
-
-def fetch_eq_dir():
-    global eq_dir
-    conn = create_connection('./stables.db')
-    c = conn.cursor()
-    c.execute("""SELECT * FROM eqDir""")
-    try:
-        eq_dir = c.fetchall()[0][0]
-    except Exception as e:
-        print('no eq DIR set yet')
-    print(eq_dir)
+import re
+import mymodules
+import spells
 
 def row_right_click(e):
     item = my_tree.identify_row(e.y)
@@ -31,26 +23,10 @@ def row_right_click(e):
         right_click_menu.entryconfig("Parse Inventory File", command=lambda: menu_item_right_click("Parse Inventory File", name, '', eq_dir))
         right_click_menu.entryconfig("Copy UI", command=lambda c=char_class: menu_item_right_click("Copy UI", name, char_class, eq_dir))
         right_click_menu.entryconfig("Get Camp Location", command=lambda : menu_item_right_click("Get Camp Location", name, '', eq_dir))
+        right_click_menu.entryconfig("Missing Spells", command=lambda : menu_item_right_click("Missing Spells", name, char_class, eq_dir))
                
-def menu_item_right_click(option, name, char_class, eq_dir):
-    if option == 'Edit':
-        edit_character_window(name)
-        
-    elif option == 'Delete':
-        delete_character(name)
-        
-    elif option == 'Open Inventory':
-        inventory_window(name)
-        
-    elif option == 'Parse Inventory File':
-        create_inventory(name, eq_dir)
-         
-    elif option == 'Copy UI':
-        copy_ui(eq_dir, char_class, name)
-    
-    elif option == 'Get Camp Location':
-        get_camp_location(eq_dir, name)
-        
+
+
 class_options = [
         'All',
         'Bard',
@@ -71,11 +47,14 @@ class_options = [
 
 characters_array = []
 inventory_array = []
+missing_spells_array = []
 new_char_window_open = False
 edit_char_window_open = False
 inventory_window_open = False
 eq_dir_window_open = False
+# missing_spells_window_open = False
 eq_dir = 'c:/r99'
+
 root = Tk()
 root.title('S T A B L E S')
 inputSearch = Entry(root, width=100, bd=5, font = ('Arial Bold', 15))
@@ -93,7 +72,6 @@ select_class_frame.grid(row=0, column=0, padx=5, pady=5, sticky="W")
 select_class_label = Label(select_class_frame, text="CLASS:", anchor="w")
 select_class_label.grid(row=0, column=0, padx=(5, 0), pady=5, sticky="w")
 selected_class = StringVar()
-
 selected_class.set(class_options[0])
 select_class_pulldown = OptionMenu(select_class_frame, selected_class, *class_options)
 select_class_pulldown.grid(row=0, column=1, padx=5, pady=5, sticky="w")
@@ -108,101 +86,35 @@ right_click_menu.add_command(label = "Open Inventory")
 right_click_menu.add_command(label = "Parse Inventory File")
 right_click_menu.add_command(label = "Copy UI")
 right_click_menu.add_command(label = "Get Camp Location")
+right_click_menu.add_command(label = "Missing Spells")
 
-
-def get_camp_location(eq_dir = eq_dir, name = 'All'):
-    # need to add a checker for if name == 'All'
-    char_names = []
-    zone_char_pairs = []
-    if name == 'All':
-        # BACK TO HERE
-        char_names = [character['Name'] for character in characters_array]
-    else:
-        char_names = [character['Name'] for character in characters_array if character['Name'] == name]
+def menu_item_right_click(option, name, char_class, eq_dir):
+    if option == 'Edit':
+        edit_character_window(name)
+        
+    elif option == 'Delete':
+        delete_character(name)
+        
+    elif option == 'Open Inventory':
+        inventory_window(name)
+        
+    elif option == 'Parse Inventory File':
+        create_inventory(name, eq_dir)
+         
+    elif option == 'Copy UI':
+        copy_ui(eq_dir, char_class, name)
     
-    popup = Toplevel()
-    popup.title('Parsing Progress')
-    text_widget = scrolledtext.ScrolledText(popup, wrap=WORD)
-    text_widget.pack(fill=BOTH, expand=True) 
-    text_widget.insert(1.0, 'Parsing in progress, please wait til completion...\n')
-    text_widget.update()
+    elif option == 'Get Camp Location':
+        mymodules.get_camp_location(my_tree, inputSearch, characters_array, selected_class, eq_dir, name)
 
-    counter = 0
-    
-    for char_name in char_names:
-        if char_name == 'All':
-            continue
-        log_file_path = f'{eq_dir}/Logs/eqlog_{char_name}_P1999PVP.txt'
-        found_entered = False
-        try:
-            # Open the log file in binary mode
-            with open(log_file_path, 'rb') as log_file:
-                # Seek to the end of the file
-                log_file.seek(0, os.SEEK_END)
-                # Read the file in reverse order
-                while log_file.tell() > 0:
-                    log_file.seek(-1, os.SEEK_CUR)
-                    # Read a byte
-                    char = log_file.read(1).decode('utf-8')
-                    # If it's a newline character, it's the end of a line
-                    if char == '\n':
-                        counter += 1
-                        log_file.seek(-2, os.SEEK_CUR)
-                    # Read and print the line in reverse order
-                    line = ""
-                    while char != '\n' and log_file.tell() > 0:
-                        line = char + line
-                        log_file.seek(-2, os.SEEK_CUR)
-                        char = log_file.read(1).decode('utf-8')
-                        
-                        if 'entered' in line:
-                        # Initialize a variable to store the zone name
-                            zone_name = line[line.index('entered') + 8: line.index(".")]
-                            text_widget.insert(1.0, f'Character "{char_name}" is camped out in: {zone_name}\n')
-                            text_widget.update()
-                            zone_char_pairs.append([zone_name, char_name])
-                            found_entered = True
-                            # Now we need to update the object locally
-                            character_to_edit = None
-                            for character in characters_array:
-                                if character['Name'] == char_name:
-                                    character_to_edit = character
-                                    break       
-                            if character_to_edit is None:
-                                text_widget.insert(1.0, f"Character with name '{char_name}' not found\n")
-                                text_widget.update()
-                            character_to_edit['Location'] = zone_name
-                            break
-                    if found_entered:
-                        break
-                    if counter == 10000:
-                        break
-        except FileNotFoundError as e:
-            text_widget.insert(END, f'File not found: {e}\n')
-            text_widget.update()
-        except PermissionError as e:
-            text_widget.insert(END, f'Permission error: {e}\n')
-            text_widget.update()
-        except Exception as e:
-            text_widget.insert(END, f'An error occurred: {e}\n')
-            text_widget.update()
+    elif option == 'Missing Spells':
+        spells.missing_spells_window(characters_array, root, name)
 
-    conn = create_connection('./stables.db')
-    c = conn.cursor()
-    for zone_name, char_name in zone_char_pairs:
-        text_widget.insert(1.0, f'Updating: {zone_name}, {char_name}\n')
-        text_widget.update()
-        c.execute("UPDATE characters SET location = ? WHERE charName = ?", (zone_name, char_name))
-    conn.commit()
-    conn.close()
-    query_characters_array('e', selected_class.get())
-    text_widget.insert(1.0, 'Parsing complete!\n')
-    text_widget.update()
-
-
-
-
-
+# Could put this into module because of passed in global params
+def create_all_spells_dbs():
+    spells.create_character_spellbooks(characters_array, 'All', eq_dir)
+    spells.create_class_spells_db()
+    spells.create_missing_spells_db(characters_array, eq_dir, name='All')
 
 def copy_ui(eq_dir, char_class, name):
     print('eq_dir', eq_dir)
@@ -229,7 +141,7 @@ def copy_ui(eq_dir, char_class, name):
         print(f'Permission error: {e}')
     except Exception as e:
         print(f'An error occurred: {e}')
-
+# could modulize this too with parameter passing:
 def eq_directory():
     global eq_dir_window_open
     global eq_dir
@@ -249,7 +161,7 @@ def eq_directory():
     
     def set_eq_dir():
         global eq_dir
-        conn = create_connection('./stables.db')
+        conn = mymodules.create_connection('./stables.db')
         c = conn.cursor()
         c.execute("SELECT COUNT(*) FROM eqDir")
         row_count = c.fetchone()[0]
@@ -276,7 +188,7 @@ def eq_directory():
     eq_dir_input.bind("<Return>", lambda event: close_eq_dir_window())
     
 def selected_class_changed(*args):
-    query_characters_array(None, selected_class.get())
+    query_characters_array(characters_array, None, selected_class.get(), my_tree, inputSearch)
 
 def inventory_window(name):
     global inventory_window_open
@@ -296,7 +208,7 @@ def inventory_window(name):
     def query_char_inventory(name, item_name):
         global inventory_array
         inventory_array = []
-        conn = create_connection('./stables.db')
+        conn = mymodules.create_connection('./stables.db')
         c = conn.cursor()
         selected_char.set(name)
         print(name)
@@ -313,10 +225,10 @@ def inventory_window(name):
         for item in char_inventory:
             inventory_array.append(item)
 
-        fill_table_with_inventory_array()
         conn.commit()
         conn.close()
-
+        fill_table_with_inventory_array()
+        
     def selected_inventory_changed(*args):
         global inventory_array
         inventory_array = []
@@ -391,7 +303,6 @@ def show_please_wait_window():
 
     return please_wait_window, log_text
 
-# Parses inventory file(s) and uploads to SQLite:
 def create_inventory(name, eq_dir):
     delete_inventory_db(name)
     please_wait_window, log_text = show_please_wait_window()
@@ -404,7 +315,7 @@ def create_inventory(name, eq_dir):
         char_names = [char['Name'] for char in characters_array if char['Name'] == name]
     char_names.sort()
     # Parse the eq_dir for the files
-    conn = create_connection('./stables.db')
+    conn = mymodules.create_connection('./stables.db')
     c = conn.cursor()
     count = 0
     try:
@@ -417,7 +328,9 @@ def create_inventory(name, eq_dir):
                         file.readline()
                         batch_inserts = [] 
                         for line in file:
+                            
                             line = line.strip().split('\t')
+                            print(line)
                             char_inventory_array.append(line)
                             if len(line) != 5:
                                 continue
@@ -443,7 +356,7 @@ def create_inventory(name, eq_dir):
     return
 
 def delete_inventory_db(name):
-    conn = create_connection('./stables.db')
+    conn = mymodules.create_connection('./stables.db')
     c = conn.cursor()
     if name == 'All':
         try:
@@ -465,7 +378,7 @@ def delete_character(name):
     global characters_array
     try:
         # perform query to delete item
-        conn = create_connection("./stables.db")
+        conn = mymodules.create_connection("./stables.db")
         c = conn.cursor()
         c.execute("""DELETE FROM Characters WHERE charName = ? """, (name,))
         conn.commit()
@@ -554,7 +467,7 @@ def edit_character_window(name):
         else:
             print(f"Warning: Uknown character class '{char_class_name}'")
     
-        conn = create_connection('./stables.db')
+        conn = mymodules.create_connection('./stables.db')
         c = conn.cursor()
         c.execute(""" UPDATE characters SET charName = ? , classID = ?, account = ?, password = ?, emuAccount = ?, emuPassword = ?, server = ?, location = ? WHERE charName = ? """,
                   (
@@ -585,7 +498,7 @@ def edit_character_window(name):
         edit_char_window_open = False
         # Change value back after SQL insert
         character_data['Class'] = char_class_name
-        query_characters_array('e', selected_class.get())
+        query_characters_array(characters_array, 'e', selected_class.get(), my_tree, inputSearch)
         edit_char_window.destroy()
 
     def close_edit_char_window():
@@ -648,7 +561,7 @@ def create_new_character_window():
         print("New Character Data:", character_data)
         # Convert charClass to charID
         # Connect to DB:
-        conn = create_connection('./stables.db')
+        conn = mymodules.create_connection('./stables.db')
         c = conn.cursor()
         c.execute(""" INSERT INTO Characters (charName, classID, emuAccount, emuPassword, account, password, server, location)
                       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -696,17 +609,6 @@ def insert_new_character(character_data):
 def exit_app():
     root.quit()
 
-def create_connection(db_file):
-    """ create a database connection to a SQLite database """
-    conn = None
-    try:
-        conn = sqlite3.connect(db_file)
-        return conn
-    except Error as e:
-        print(e)
-
-    return conn
-
 def create_table(conn, create_table_sql):
     try:
         c = conn.cursor()
@@ -716,7 +618,7 @@ def create_table(conn, create_table_sql):
 
 def fetch_row_test():
     database = "./stables.db"
-    conn = create_connection(database)
+    conn = mymodules.create_connection(database)
     c = conn.cursor()
     c.execute("SELECT * FROM characters WHERE charName = 'test'")
     row = c.fetchall()
@@ -724,7 +626,7 @@ def fetch_row_test():
 
 def fetch_all_characters():
     database = "./stables.db"
-    conn = create_connection(database)
+    conn = mymodules.create_connection(database)
     c = conn.cursor()
     c.execute("SELECT * FROM characters")
     rows = c.fetchall()
@@ -799,6 +701,12 @@ def create_tables():
                                        spellName text
     );"""
 
+    sql_create_missingspells_table = """ Create TABLE IF NOT EXISTS missingSpells (
+                                       charName text,
+                                       spellLevel integer,
+                                       spellName text
+    );"""
+
     sql_create_inventory_table = """ Create TABLE IF NOT EXISTS inventory (
                                        charName text,
                                        itemLocation text,
@@ -808,7 +716,8 @@ def create_tables():
                                        itemSlots integer
     );"""
 
-    conn = create_connection(database)
+    
+    conn = mymodules.create_connection(database)
     # c = conn.cursor()
     if conn is not None:
         create_table(conn, sql_create_characters_table)
@@ -817,6 +726,8 @@ def create_tables():
         create_table(conn, sql_create_classSpells_table)
         create_table(conn, sql_create_spellbooks_table)
         create_table(conn, sql_create_inventory_table)
+        create_table(conn, sql_create_missingspells_table)
+        
     conn.close()
 
 def create_menus():
@@ -828,7 +739,9 @@ def create_menus():
     # Add items to the File menu
     file_menu.add_command(label="New Character", command=create_new_character_window)
     file_menu.add_command(label="Set EQ dir", command=eq_directory)
-    file_menu.add_command(label="Get All Camp Locations", command=get_camp_location)
+    file_menu.add_command(label="Get All Camp Locations", command=lambda: mymodules.get_camp_location(my_tree, inputSearch, characters_array,selected_class, eq_dir, name='All'))
+    file_menu.add_command(label="Create Missing Spells DB", command=spells.create_missing_spells_db)
+    file_menu.add_command(label="Missing Spells Window", command=lambda: mymodules.get_camp_location(my_tree, inputSearch, characters_array,selected_class, eq_dir, name='All'))
     file_menu.add_command(label="Exit", command=exit_app)
     # Create an Edit menu (just for demonstration)
     inventory_menu = Menu(menu_bar, tearoff=0)
@@ -850,18 +763,18 @@ def create_columns():
 
 def create_headings():
     my_tree.heading("#0", text="")
-    my_tree.heading("Name", text="Name", command=lambda: sort_column("Name", False))
-    my_tree.heading("Class", text="Class")
-    my_tree.heading("Account", text="Account")
-    my_tree.heading("Password", text="Password")
-    my_tree.heading("EmuAccount", text="EmuAccount")
-    my_tree.heading("EmuPassword", text="EmuPassword")
-    my_tree.heading("Server", text="Server")
-    my_tree.heading("Location", text="Location")
+    my_tree.heading("Name", text="Name", command=lambda: mymodules.sort_column("Name", False, my_tree))
+    my_tree.heading("Class", text="Class", command=lambda: mymodules.sort_column("Class", False, my_tree))
+    my_tree.heading("Account", text="Account", command=lambda: mymodules.sort_column("Account", False, my_tree))
+    my_tree.heading("Password", text="Password", command=lambda: mymodules.sort_column("Password", False, my_tree))
+    my_tree.heading("EmuAccount", text="EmuAccount", command=lambda: mymodules.sort_column("EmuAccount", False, my_tree))
+    my_tree.heading("EmuPassword", text="EmuPassword", command=lambda: mymodules.sort_column("EmuPassword", False, my_tree))
+    my_tree.heading("Server", text="Server", command=lambda: mymodules.sort_column("Server", False))
+    my_tree.heading("Location", text="Location", command=lambda: mymodules.sort_column("Location", False, my_tree))
 
 def import_json_db():
         json_db = None
-        conn = create_connection("./stables.db")
+        conn = mymodules.create_connection("./stables.db")
         c = conn.cursor()
         with open("db.json", "r") as json_file:
             json_db = json.load(json_file)
@@ -907,7 +820,7 @@ def import_json_db():
 
 def delete_all_characters():
     database = "./stables.db"
-    conn = create_connection(database)
+    conn = mymodules.create_connection(database)
     c = conn.cursor()
     
     try:
@@ -919,7 +832,7 @@ def delete_all_characters():
     finally:
         conn.close()
 
-def query_characters_array(event, selected_class):
+def query_characters_array(characters_array, event, selected_class, my_tree, inputSearch):
     search_input_text = inputSearch.get().lower()
     if selected_class == 'All':
         filtered_characters = [char for char in characters_array if search_input_text in char['Name'].lower()]
@@ -935,21 +848,21 @@ def query_characters_array(event, selected_class):
             char['Name'], char['Class'], char['Account'], char['Password'],
             char['EmuAccount'], char['EmuPassword'], char['Server'], char['Location']))
         counter += 1
-    sort_column("Name", False)
+    mymodules.sort_column("Name", False, my_tree)
     return
 
-def custom_sort(col, reverse):
-    data = [(my_tree.set(item, col) ,item)for item in my_tree.get_children('')]
-    data.sort(reverse=reverse)
-    for index, (val, item) in enumerate(data):
-        my_tree.move(item, '', index)
-    my_tree.heading(col, command=lambda: sort_column(col, not reverse))
+# def custom_sort(col, reverse):
+#     data = [(my_tree.set(item, col) ,item)for item in my_tree.get_children('')]
+#     data.sort(reverse=reverse)
+#     for index, (val, item) in enumerate(data):
+#         my_tree.move(item, '', index)
+#     my_tree.heading(col, command=lambda: sort_column(col, not reverse))
 
-def sort_column(col, reverse):
-    my_tree.heading(col, command=lambda: custom_sort(col, reverse))
-    custom_sort(col, reverse)
+# def sort_column(col, reverse):
+#     my_tree.heading(col, command=lambda: custom_sort(col, reverse))
+#     custom_sort(col, reverse)
 
-inputSearch.bind("<KeyRelease>", lambda event: query_characters_array(event, selected_class.get()))
+inputSearch.bind("<KeyRelease>", lambda event: query_characters_array(characters_array, event, selected_class.get(), my_tree, inputSearch))
 selected_class.trace("w", selected_class_changed)
 # Not sure why this condition is needed, or what it even does:
 if __name__ == '__main__':
@@ -958,11 +871,21 @@ if __name__ == '__main__':
     create_columns()
     create_headings()
     create_menus()
-    sort_column("Name", False)
+    mymodules.sort_column("Name", False, my_tree)
     # delete_all_characters()
     # delete_inventory_db('All')
     # import_json_db()
-    fetch_eq_dir()
+    mymodules.fetch_eq_dir()
+    
+    spells.delete_all_spell_tables()
+    # spells.select_all_spell_tables()
+    # create_class_spells_db()
+    # spells.create_character_spellbooks(characters_array, 'All', eq_dir)
+    # spells.create_missing_spells_db()
+    # select_all_spell_tables()
+    create_all_spells_dbs()
+    # print(spells.get_class_spells('Necromancer'))
+
     root.mainloop()
 
 
