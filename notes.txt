@@ -1,18 +1,28 @@
-TODO:
--if 2 chars are the same name, this creates an edit anomoly. We need to create some sort of unique match, or match on all rows to soften the blow
--remove console logs from inventory funcs
+BUGS:
+    
+    -Why are we passing tree into 'inventory_window()'?
+    
+    -Multiple windows can be open at a time because we are importing funcs and passing params
+        -This will be fixed with classes
+    -Could add error handling for spell book type stuff. If pure melee, continue, etc
+    -if 2 chars are the same name, this creates an edit anomoly. We need to create some sort of unique match, or match on all rows to soften the blow
+    -Remove console logs from inventory funcs
+
 WHERE WE LEFT OFF:
-    -Need to try to remove some global vars so we can modulize things
--Change array param to characters_array
--refactor and remove class numbers
--right click menu for spell books, as well as ALL menu
--Remove parameter for 'create_connection()'
--Refactor Right click options funcs
--Add sorting for iventory
--add 'Missing Spells'
--use 'show_please_wait_window()' for camp parser as well
+
+
+
+TODO:
+    -OOP overhaul
+    -Ad ID checks for Piece of a Medallion
+    -refactor and remove class numbers
+    -right click menu for spell books, as well as ALL menu
+    -Remove parameter for 'create_connection()'
+    -Refactor Right click options funcs
+    -Can we add null check for files when attempting to parse? Could improve latency
+
 -ask kas for OOP advice
--Since eq_dir is global, can probably remove EQ_dir from function params
+
 -Add lvl col
 -Timestamps so i dont re parse
 -open individual inventory is bugging out
@@ -21,32 +31,17 @@ WHERE WE LEFT OFF:
 -Filters for item searches
     -Advanced filtering
 
--open window and 'query_char_inventory(rightclickedname)'
--takes fetch from WHERE name = 'x' and appends to global inventory_array
--calls filltablewithinventoryarray(), which fills table with global array (probably could have just passed the array in)
--So what do we have at this point?
-    -inventory_array = [charname items]
+--BIG REFACTOR IDEAS:
+    -inventory_window():
+        -Add a checker at the beginning of window launch to see if selected char does not exist in DB, and abort on the spellbooks_object
+            -This could be achieved by creating some metadata on app load.
+            -For example, store the names of each char that exists in each table
+            -This metadata can be accessed easily without performing additional queries and such
 
--need to create a master object for 'class_spells'
-{'necro': (2d list), ...etc}
+OOP OVERHAUL:
+    -
 
--need to create a 'spellbook object'
-{'charname': (2d list), ...etc}
 
--char in 'spellbook object':
-    -char_class = 'char_classes[char]' 
-    -char= 2dlist
-    -iterate through class_spells[char_class]
-        -if spell not in spellbook[char_name]:
-            -spell.insert(0, char_name)
-            -missing_spells.append(spell)
 
--We can either change the tuples inside 'class_spells' to lists, or change the lists in 'character_spellsbooks' to tuples
--CLASS SPELLS = int
--CHARACTER SPELLS = string
 
--Should store missings spells in DB
--When missing spells window is opened, query is performed
--At the moment, we are doing queries for diff chars missing spells
--Also, for the pulldown list for missing spells, we should fetch all the 'charNames' and populate list with that
--Not all missing spells are being created like they sohuld be
+
