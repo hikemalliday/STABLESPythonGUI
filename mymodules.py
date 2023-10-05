@@ -7,18 +7,8 @@ import json
 import os
 from tkinter import scrolledtext
 import re
+import threading
 
-
-
-def fetch_eq_dir():
-    conn = create_connection('./stables.db')
-    c = conn.cursor()
-    c.execute("""SELECT * FROM eqDir""")
-    try:
-        return c.fetchall()[0][0]
-    except Exception as e:
-        return 'c:/r99'
-    
 def create_connection(db_file):
     """ create a database connection to a SQLite database """
     conn = None
@@ -30,6 +20,15 @@ def create_connection(db_file):
 
     return conn
 
+def fetch_eq_dir():
+    conn = create_connection('./stables.db')
+    c = conn.cursor()
+    c.execute("""SELECT * FROM eqDir""")
+    try:
+        return c.fetchall()[0][0]
+    except Exception as e:
+        return 'c:/r99'
+    
 def query_characters_array(characters_array, event, selected_class, tree, inputSearch):
         search_input_text = inputSearch.get().lower()
         if selected_class == 'All':
@@ -147,15 +146,212 @@ def custom_sort(col, reverse, tree):
     data.sort(reverse=reverse)
     for index, (val, item) in enumerate(data):
         tree.move(item, '', index)
-    tree.heading(col, command=lambda: sort_column(col, not reverse))
+    tree.heading(col, command=lambda: sort_column(col, not reverse, tree))
 
 def sort_column(col, reverse, tree):
-    tree.heading(col, command=lambda: custom_sort(col, reverse))
+    tree.heading(col, command=lambda: custom_sort(col, reverse, tree))
     custom_sort(col, reverse, tree)
 
+# def custom_sort(col, reverse, tree):
+#     # Create a list of item tags and sort it based on the column values
+#     item_tags = list(tree.get_children())
+#     item_tags.sort(key=lambda item: tree.set(item, col), reverse=reverse)
+
+#     # Rearrange items in the Treeview based on the sorted tags
+#     for index, tag in enumerate(item_tags):
+#         tree.move(tag, '', index)
+
+# def sort_column(col, reverse, tree):
+#     custom_sort(col, reverse, tree)
+#     # Update the sorting function for the column header click
+#     header = tree.heading(col)
+#     header['command'] = lambda: sort_column(col, not reverse, tree)
+
+def delete_all_characters():
+    database = "./stables.db"
+    conn = create_connection(database)
+    c = conn.cursor()
+    
+    try:
+        c.execute("DELETE FROM characters")
+        conn.commit()
+        print("All rows deleted from the 'characters' table.")
+    except Error as e:
+        print(e)
+    finally:
+        conn.close()
+
+def import_json_db():
+        json_db = None
+        conn = create_connection("./stables.db")
+        c = conn.cursor()
+        with open("db.json", "r") as json_file:
+            json_db = json.load(json_file)
+        
+        for character in json_db:
+            # Map character class names to class IDs
+            class_name = character['charClass']
+            class_id_mapping = {
+                'Bard': 1,
+                'Cleric': 2,
+                'Druid': 3,
+                'Enchanter': 4,
+                'Mage': 5,
+                'Monk': 6,
+                'Necromancer': 7,
+                'Paladin': 8,
+                'Ranger': 9,
+                'Rogue': 10,
+                'Shadow Knight': 11,
+                'Shaman': 12,
+                'Warrior': 13,
+                'Wizard': 14
+            }
+            location = character.get('location', None)
+            class_id = class_id_mapping.get(class_name, None)
+            if class_id is not None:
+                c.execute("""
+                    INSERT INTO characters (charName, classID, emuAccount, emuPassword, account, password, server, location)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    character['charName'],
+                    class_id,
+                    character['emuAccount'],
+                    character['emuPassword'],
+                    character['account'],
+                    character['password'],
+                    character['server'],
+                location
+                ))
+
+                conn.commit()
+        conn.close()
+
+def fill_table_with_characters_array(characters_array, tree):
+    for item in tree.get_children():
+        tree.delete(item)
+    counter = 0
+    # iterate over 'characters_array' and fill table
+    for character in characters_array:
+        tree.insert(parent='', index='end', iid = counter, text="", values=(character['Name'], character['Class'], character['Account'], character['Password'], character['EmuAccount'], character['EmuPassword'], character['Server'], character['Location']))
+        counter += 1
+    return
+
+def fetch_all_characters(characters_array, tree):
+    conn = create_connection("./stables.db")
+    c = conn.cursor()
+    c.execute("SELECT * FROM characters")
+    rows = c.fetchall()
+    # Add Data
+    for row in rows:
+        class_id_mapping = {
+        1: 'Bard',
+        2: 'Cleric',
+        3: 'Druid',
+        4: 'Enchanter',
+        5: 'Mage',
+        6: 'Monk',
+        7: 'Necromancer',
+        8: 'Paladin',
+        9: 'Ranger',
+        10: 'Rogue',
+        11: 'Shadow Knight',
+        12: 'Shaman',
+        13: 'Warrior',
+        14: 'Wizard'
+        }
+        
+        row_object = {
+            'Name': row[1],
+            'Class': class_id_mapping.get(row[2], None),
+            'Account': row[3],
+            'Password': row[4],
+            'EmuAccount': row[5],
+            'EmuPassword': row[6],
+            'Server': row[7],
+            'Location': row[8]
+        }
+
+        characters_array.append(row_object)
+    # filtered_characters = copy.deepcopy(characters_array)
+    fill_table_with_characters_array(characters_array, tree)
+    conn.close()
+
+def exit_app(root):
+    root.quit()
+
+def create_table(conn, create_table_sql):
+    try:
+        c = conn.cursor()
+        c.execute(create_table_sql)
+    except Error as e:
+        print(e)
+
+def create_tables():
+    
+    sql_create_characters_table = """ Create TABLE IF NOT EXISTS characters (
+                                    charID integer PRIMARY KEY AUTOINCREMENT,
+                                    charName text NOT NULL,
+                                    classID integer,
+                                    account text,
+                                    password text,
+                                    emuAccount text,
+                                    emuPassword text,
+                                    server text,
+                                    location text
+    );"""
+
+    sql_create_characterClasses_table = """ Create TABLE IF NOT EXISTS characterClasses (
+                                 classID integer PRIMARY KEY,
+                                 charClass text
+    );"""
+
+    sql_create_eqDir_table = """ Create TABLE IF NOT EXISTS eqDir (
+                                 eqDir text PRIMARY KEY
+    );"""
+
+    sql_create_classSpells_table = """ Create TABLE IF NOT EXISTS classSpells (
+                                       charClass text,
+                                       spellLevel integer,
+                                       spellName text
+    );"""
+
+    sql_create_spellbooks_table = """ Create TABLE IF NOT EXISTS spellbooks (
+                                       charName text,
+                                       spellLevel integer,
+                                       spellName text
+    );"""
+
+    sql_create_missingspells_table = """ Create TABLE IF NOT EXISTS missingSpells (
+                                       charName text,
+                                       spellLevel integer,
+                                       spellName text
+    );"""
+
+    sql_create_inventory_table = """ Create TABLE IF NOT EXISTS inventory (
+                                       charName text,
+                                       itemLocation text,
+                                       itemName text,
+                                       itemId integer,
+                                       itemCount integer,
+                                       itemSlots integer
+    );"""
+
+    conn = create_connection("./stables.db")
+    # c = conn.cursor()
+    if conn is not None:
+        create_table(conn, sql_create_characters_table)
+        create_table(conn, sql_create_characterClasses_table)
+        create_table(conn, sql_create_eqDir_table)
+        create_table(conn, sql_create_classSpells_table)
+        create_table(conn, sql_create_spellbooks_table)
+        create_table(conn, sql_create_inventory_table)
+        create_table(conn, sql_create_missingspells_table)
+        
+    conn.close()
 
 
-
+    
 
 
 
