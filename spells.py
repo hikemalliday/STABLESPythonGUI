@@ -20,7 +20,7 @@ def test_fetch_spell(char_name, spell_name):
         conn.commit()
         conn.close()
         print(results)
-
+# Moved to SpellsMethods
 def delete_spells_db(eq_dir, name):
     conn = mymodules.create_connection('./stables.db')
     c = conn.cursor()
@@ -30,7 +30,7 @@ def delete_spells_db(eq_dir, name):
     conn.commit()
     conn.close()
     print('Entire Spells DB Deleted.')
-
+# Moved to SpellsMethods
 def query_missing_spells():
     conn = mymodules.create_connection('./stables.db')
     c = conn.cursor()
@@ -38,7 +38,7 @@ def query_missing_spells():
     res = c.fetchall()
     print('res')
     print(res)
-
+# Moved to SpellsMethods
 def create_class_spells_db():
         class_spells = []
         for filename in os.listdir('./classSpells'):
@@ -60,7 +60,7 @@ def create_class_spells_db():
         conn.commit()
         conn.close()
         print('db.classSpells written')
-
+# Moved to SpellsMethods
 def create_character_spellbooks(array, name='All', eq_dir='test'):
         char_names = []
         spellbooks_list = []
@@ -109,7 +109,7 @@ def create_character_spellbooks(array, name='All', eq_dir='test'):
         conn.close()
         print('create_character_spellbooks() done')
         return spellbooks_object
-        
+# Moved to SpellsMethods       
 def get_class_spells(char_class):
         # need to return an object that contains key: char_class, val: 2d list
         conn = mymodules.create_connection('./stables.db')
@@ -135,6 +135,7 @@ def get_class_spells(char_class):
         conn.close()
         return class_spells
 # For debugging
+# Moved to SpellsMethods
 def get_all_spell_tables():
     conn = mymodules.create_connection('./stables.db')
     c = conn.cursor()
@@ -165,7 +166,7 @@ def get_all_spell_tables():
     print(res2)
     conn.commit()
     conn.close()
-
+# Moved to SpellsMethods
 def delete_all_spell_tables():
     conn = mymodules.create_connection('./stables.db')
     c = conn.cursor()
@@ -177,7 +178,7 @@ def delete_all_spell_tables():
     print('deleted db.missingSpells')
     conn.commit()
     conn.close()
-
+# Moved to SpellsMethods
 def create_missing_spells_db(characters_array, eq_dir='test', name='All'):
         
         # create_all_spells_dbs(characters_array, name, eq_dir)
@@ -232,7 +233,7 @@ def create_missing_spells_db(characters_array, eq_dir='test', name='All'):
         # print(class_spells['Wizard'])
         # Returns a list of tuples (char_name, lvl, spell_name)
         return missing_spells
-
+# Moved to 'SpellsWindow()'
 def missing_spells_window(characters_array, root, name='All', missing_spells_window_open=None, missing_spells_array=[]):
 
     if missing_spells_window_open:
