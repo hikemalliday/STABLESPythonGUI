@@ -10,17 +10,8 @@ BUGS:
 
 WHERE WE LEFT OFF:
 
-
-
 TODO:
-    -OOP overhaul
-    -Ad ID checks for Piece of a Medallion
-    -refactor and remove class numbers
-    -right click menu for spell books, as well as ALL menu
-    -Remove parameter for 'create_connection()'
-    -Refactor Right click options funcs
-    -Can we add null check for files when attempting to parse? Could improve latency
-
+   
 -ask kas for OOP advice
 
 -Add lvl col
@@ -39,7 +30,63 @@ TODO:
             -This metadata can be accessed easily without performing additional queries and such
 
 OOP OVERHAUL:
-    -
+    -Classes:
+        -MAIN_GUI:
+        -INVENTORY_WINDOW_GUI
+        -SPELLS_WINDOW_GUI
+        -Methods:
+            -CRUD:
+                -Create Char
+                -Edit Char
+                -Delete Char
+            -INVENTORY:
+                -Parse Inventory(s)
+                -Delete Inventory(s)
+                -Open Inventory Window
+            -FILE MENU:
+                -Eq_dir
+                -Campout Parser
+
+
+GUI'S: (possible bundle this into a single class)
+    class 'Gui':
+        class 'Main_gui':
+            -Call 'setup_main_gui' func on '__innit__'
+
+        class 'Inventory_gui':
+            -These widgets are contained within the 'Inventory Window' func
+            -Refactor 'Inventory_Window' to have a 'setup_inventory_gui' func
+                -Could call this func on '__innit__'
+            
+
+        class 'Spells_gui':
+            -These widgets are contained within the 'Spells Window' func
+            -Refactor 'Spells_Window' to have a 'setup_spells_gui' func
+                --Could call this func on '__innit__'
+
+CHARACTERS:
+    class 'Character_methods':
+        -Create
+        -Edit
+        -Delete
+        -Parse Camp Locations
+
+SPELLS:
+    class 'Spells_methods':
+        -Parse All Spells DB'S
+        -Delete All Spells DB's
+
+INVENTORY:
+    class 'Inventory_methods':
+        -Parse Inventory(s)
+        -Delete Inventory(s)
+
+
+--REFACTOR:
+    -'main_gui_instance' to 'main_gui'
+    -Any parameter 'eq_dir' can be refactored to 'self.data.eq_dir'
+
+
 
 
 

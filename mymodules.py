@@ -8,7 +8,7 @@ import os
 from tkinter import scrolledtext
 import re
 import threading
-
+# Moved to 'MiscMethods()'
 def create_connection(db_file):
     """ create a database connection to a SQLite database """
     conn = None
@@ -19,7 +19,7 @@ def create_connection(db_file):
         print(e)
 
     return conn
-
+# Moved to 'MiscMethods()'
 def fetch_eq_dir():
     conn = create_connection('./stables.db')
     c = conn.cursor()
@@ -28,7 +28,7 @@ def fetch_eq_dir():
         return c.fetchall()[0][0]
     except Exception as e:
         return 'c:/r99'
-    
+# Moved to 'CharacterMethods()'
 def query_characters_array(characters_array, event, selected_class, tree, inputSearch):
         search_input_text = inputSearch.get().lower()
         if selected_class == 'All':
@@ -47,8 +47,8 @@ def query_characters_array(characters_array, event, selected_class, tree, inputS
             counter += 1
         sort_column("Name", False, tree)
         return
-# pass in characters_array
-# Query_characters_array() and selected_class:
+
+# Added to 'CharacterMethods()'
 def get_camp_location(tree, inputSearch, characters_array, selected_class, eq_dir, name='All'):
     # Define the regex pattern for matching zone information
     regex = r"^.{27}There (?:is|are) \d+ player(?:s?) in (?!EverQuest)(\D+).$"
@@ -140,33 +140,18 @@ def get_camp_location(tree, inputSearch, characters_array, selected_class, eq_di
     text_widget.insert(1.0, 'Parsing complete!\n')
     text_widget.update()
     # print(lines_parsed_per_char)
-
+# Moved to 'MiscMethods()'
 def custom_sort(col, reverse, tree):
     data = [(tree.set(item, col) ,item)for item in tree.get_children('')]
     data.sort(reverse=reverse)
     for index, (val, item) in enumerate(data):
         tree.move(item, '', index)
     tree.heading(col, command=lambda: sort_column(col, not reverse, tree))
-
+# Moved to 'MiscMethods()'
 def sort_column(col, reverse, tree):
     tree.heading(col, command=lambda: custom_sort(col, reverse, tree))
     custom_sort(col, reverse, tree)
-
-# def custom_sort(col, reverse, tree):
-#     # Create a list of item tags and sort it based on the column values
-#     item_tags = list(tree.get_children())
-#     item_tags.sort(key=lambda item: tree.set(item, col), reverse=reverse)
-
-#     # Rearrange items in the Treeview based on the sorted tags
-#     for index, tag in enumerate(item_tags):
-#         tree.move(tag, '', index)
-
-# def sort_column(col, reverse, tree):
-#     custom_sort(col, reverse, tree)
-#     # Update the sorting function for the column header click
-#     header = tree.heading(col)
-#     header['command'] = lambda: sort_column(col, not reverse, tree)
-
+# Moved to 'CharacterMethods()'
 def delete_all_characters():
     database = "./stables.db"
     conn = create_connection(database)
@@ -180,7 +165,7 @@ def delete_all_characters():
         print(e)
     finally:
         conn.close()
-
+# Moved to 'MiscMethods()'
 def import_json_db():
         json_db = None
         conn = create_connection("./stables.db")
@@ -226,7 +211,7 @@ def import_json_db():
 
                 conn.commit()
         conn.close()
-
+# Moved to 'CharacterMethods()'
 def fill_table_with_characters_array(characters_array, tree):
     for item in tree.get_children():
         tree.delete(item)
@@ -236,7 +221,7 @@ def fill_table_with_characters_array(characters_array, tree):
         tree.insert(parent='', index='end', iid = counter, text="", values=(character['Name'], character['Class'], character['Account'], character['Password'], character['EmuAccount'], character['EmuPassword'], character['Server'], character['Location']))
         counter += 1
     return
-
+# Moved to 'CharacterMethods()'
 def fetch_all_characters(characters_array, tree):
     conn = create_connection("./stables.db")
     c = conn.cursor()
@@ -276,17 +261,17 @@ def fetch_all_characters(characters_array, tree):
     # filtered_characters = copy.deepcopy(characters_array)
     fill_table_with_characters_array(characters_array, tree)
     conn.close()
-
+# Moved to 'MiscMethods()'
 def exit_app(root):
     root.quit()
-
+# Moved to 'MiscMethods()'
 def create_table(conn, create_table_sql):
     try:
         c = conn.cursor()
         c.execute(create_table_sql)
     except Error as e:
         print(e)
-
+# Moved to 'MiscMethods()'
 def create_tables():
     
     sql_create_characters_table = """ Create TABLE IF NOT EXISTS characters (
