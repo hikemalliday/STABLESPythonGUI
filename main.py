@@ -12,6 +12,7 @@ import spells
 import inventory
 from tkinter import messagebox
 import threading
+# Moved to classes.py:
 def row_right_click(e):
     item = my_tree.identify_row(e.y)
     if item:
@@ -87,7 +88,8 @@ right_click_menu.add_command(label = "Parse Inventory File")
 right_click_menu.add_command(label = "Copy UI")
 right_click_menu.add_command(label = "Get Camp Location")
 right_click_menu.add_command(label = "Missing Spells")
-
+# ABOVE VARS are moved to classes.py ^^^^
+# Moved to classes.py:
 def menu_item_right_click(option, name, char_class, eq_dir):
     if option == 'Edit':
         edit_character_window(name)
@@ -110,7 +112,7 @@ def menu_item_right_click(option, name, char_class, eq_dir):
     elif option == 'Missing Spells':
         spells.missing_spells_window(characters_array, root, name)
 
-# Could put this into module because of passed in global params
+# Moved into class 'RightClickMethods()'
 def copy_ui(eq_dir, char_class, name):
     print('eq_dir', eq_dir)
     print('char_class', char_class)
@@ -136,7 +138,7 @@ def copy_ui(eq_dir, char_class, name):
         print(f'Permission error: {e}')
     except Exception as e:
         print(f'An error occurred: {e}')
-# could modulize this too with parameter passing:
+# Moved into class 'FileMenuMethods()'
 def eq_directory():
     global eq_dir_window_open
     global eq_dir
@@ -181,10 +183,10 @@ def eq_directory():
     ok_button.grid(row=1, columnspan=2, pady=10)
     eq_dir_window.protocol("WM_DELETE_WINDOW", close_eq_dir_window)
     eq_dir_input.bind("<Return>", lambda event: close_eq_dir_window())
-    
+# Moved into class 'MainGui()'   
 def selected_class_changed(*args):
     mymodules.query_characters_array(characters_array, None, selected_class.get(), my_tree, inputSearch)
-
+# Moved into class 'InventoryMethods()'
 def show_please_wait_window():
     please_wait_window = Toplevel(root)
     please_wait_window.title("Please Wait...")
@@ -195,7 +197,7 @@ def show_please_wait_window():
     log_text.pack()
 
     return please_wait_window, log_text
-
+# Moved into class 'InventoryMethods()'
 def create_inventory(name, eq_dir):
     delete_inventory_db(name)
     please_wait_window, log_text = show_please_wait_window()
@@ -230,6 +232,8 @@ def create_inventory(name, eq_dir):
                                 if line[2] == '19957':
                                     line[1] = 'Piece of a medallion (Rotting Skeleton)'
                                 if line[2] == '19958':
+                                    line[1] = 'Piece of a medallion (Burnished Wooden Stave)'
+                                if line[2] == '19959':
                                     line[1] = 'Piece of a medallion (A Bloodgill Maurader)'
                                 if line[2] == '19960':
                                     line[1] = 'Piece of a medallion (An Ancient Jarsath)'
@@ -263,7 +267,7 @@ def create_inventory(name, eq_dir):
         please_wait_window.destroy()
         conn.close()
     return
-
+# Moved into class 'InventoryMethods()'
 def delete_inventory_db(name):
     conn = mymodules.create_connection('./stables.db')
     c = conn.cursor()
@@ -282,7 +286,7 @@ def delete_inventory_db(name):
         except Exception as e:
             print(e)
     conn.close()
-
+# Moved into class 'InventoryMethods()'
 def delete_character(name):
     global characters_array
     try:
@@ -300,7 +304,7 @@ def delete_character(name):
         print('Char Delete Query Failed!')
         print(e)
     return
-
+# Moved into class 'CharacterMethods()'
 def edit_character_window(name):
     global edit_char_window_open
     old_name = name
@@ -408,7 +412,7 @@ def edit_character_window(name):
     create_button = Button(edit_char_window, text="Edit Character", command=lambda: edit_character_button(character))
     create_button.grid(row=len(labels), columnspan=2, pady=10)
     edit_char_window.protocol("WM_DELETE_WINDOW", close_edit_char_window)
-    
+# Moved into 'CharacterMethods()'
 def create_new_character_window():
     global new_char_window_open
     if new_char_window_open:
@@ -489,7 +493,7 @@ def create_new_character_window():
     create_button = Button(new_char_window, text="Create Character", command=create_new_character_button)
     create_button.grid(row=len(labels), columnspan=2, pady=10)
     new_char_window.protocol("WM_DELETE_WINDOW", close_new_char_window)
-
+# Moved into 'CharacterMethods()'
 def insert_new_character(character_data):
     iids = my_tree.get_children()
     integers = [int(iid) for iid in iids]
@@ -504,7 +508,7 @@ def insert_new_character(character_data):
     my_tree.insert(parent='', index='end', iid=max_counter, text="", values=(
             character_data['Name'], character_data['Class'], character_data['Account'], character_data['Password'],
             character_data['EmuAccount'], character_data['EmuPassword'], character_data['Server'], character_data['Location']))
-
+# Moved into 'MainGui()'
 def create_menus():
     menu_bar = Menu(root)
     root.config(menu = menu_bar)
@@ -527,7 +531,7 @@ def create_menus():
     spells_menu.add_command(label="Create Missing Spells DB", command=lambda: spells.create_all_spells_dbs(characters_array, eq_dir, 'All'))
     spells_menu.add_command(label="Missing Spells Window", command=lambda: spells.missing_spells_window(characters_array, root, 'All', missing_spells_window_open = None, missing_spells_array=[]))
     spells_menu.add_command(label="Delete Entire Spells DB", command=lambda: spells.delete_spells_db(eq_dir, 'All'))
-    
+# Moved into 'MainGui()'
 def create_columns():
     my_tree.column('#0', width=0, stretch=NO)
     my_tree.column('Name', anchor=W)
@@ -538,7 +542,7 @@ def create_columns():
     my_tree.column('EmuPassword')
     my_tree.column('Server')
     my_tree.column('Location')
-
+# Moved into 'MainGui()'
 def create_headings():
     my_tree.heading("#0", text="")
     my_tree.heading("Name", text="Name", command=lambda: mymodules.sort_column("Name", False, my_tree))
@@ -549,11 +553,12 @@ def create_headings():
     my_tree.heading("EmuPassword", text="EmuPassword", command=lambda: mymodules.sort_column("EmuPassword", False, my_tree))
     my_tree.heading("Server", text="Server", command=lambda: mymodules.sort_column("Server", False))
     my_tree.heading("Location", text="Location", command=lambda: mymodules.sort_column("Location", False, my_tree))
-
+## Where do we put this? ## Probably when we __innit__ mian gui?
 inputSearch.bind("<KeyRelease>", lambda event: mymodules.query_characters_array(characters_array, event, selected_class.get(), my_tree, inputSearch))
 selected_class.trace("w", selected_class_changed)
 
 if __name__ == '__main__':
+    # These need to all fire on launch. Probably in the main GUI INNIT:
     mymodules.create_tables()
     create_columns()
     create_headings()

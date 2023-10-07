@@ -1,0 +1,22 @@
+DESIGN:
+    -Current Design Flow:
+        -create_tables()
+        -fetch_eq_dir()
+        -fetch_all_characters()
+        -MAIN_WINDOW:
+            -create_columns()
+            -create_heading()
+            -create_menus()
+            -sort_column()
+    -Bundle MAIN_WINDOW creation on __innit__
+        -Pass MiscMethods instance into MAIN_WINDOW so we can sort
+    -Bundle char + dir fetch on __innit__
+        -MiscMethods INNIT:
+            -fetch_eq_dir()
+            -fetch_all_chars()
+    -Then after all that is INNIT, call MiscMethods.sort_column()
+
+PLAN:
+    -Refactor MainWindow class to INNIT properly
+
+        
