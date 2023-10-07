@@ -11,7 +11,7 @@ import mymodules
 import spells
 from tkinter import messagebox
 import threading
-
+# Moved to 'InventoryWindow()'
 def inventory_window(name, inventory_window_open, inventory_array, characters_array, root):
     
     if inventory_window_open:
@@ -111,7 +111,7 @@ def inventory_window(name, inventory_window_open, inventory_array, characters_ar
     
     inv_window.protocol("WM_DELETE_WINDOW", lambda event=None: close_inventory_window(inventory_window_open, inventory_array))
     select_char_pulldown.bind("<<ComboboxSelected>>", lambda event, *, tree=inv_tree, inventory_array=inventory_array, characters_array=characters_array: selected_inventory_changed(inventory_array=inventory_array, characters_array=characters_array))
-
+# Moved to 'InventoryWindow()'
 def fetch_inventory_char_names():
     res = []
     conn = mymodules.create_connection('./stables.db')
