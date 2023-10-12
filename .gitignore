@@ -1,8 +1,15 @@
 .venv/
 __pycache__/
 stables.db
+
 db.json
 .github/
 note.txt
 classSpells/
 oop.py
+main2.py
+RefactorNotes.txt
+notes.txt
+spells.py
+mymodules.py
+inventory.py
