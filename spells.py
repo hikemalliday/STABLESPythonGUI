@@ -9,7 +9,7 @@ from tkinter import scrolledtext
 import re
 import mymodules
 import inventory
-import threading
+
 from tkinter import messagebox
 
 def test_fetch_spell(char_name, spell_name):
@@ -249,7 +249,6 @@ def missing_spells_window(characters_array, root, name='All', missing_spells_win
             missing_spells_tree.insert(parent='', index='end', iid=counter, values=(spell[0], spell[2], spell[1]))
             counter += 1
 
-    # Why do we need 'missing_spells_array'?
     def query_missing_spells(char_name, missing_spells_array):
         
         missing_spells_array = []
