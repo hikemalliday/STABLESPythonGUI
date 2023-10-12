@@ -1,21 +1,7 @@
 from tkinter import *
-from tkinter import ttk
-import sqlite3
-from sqlite3 import Error
-from tkinter import Menu
-import json
-import os
-from tkinter import scrolledtext
-import re
-import mymodules
-import spells
-import inventory
-from tkinter import messagebox
-import classes
-import subprocess
 
-## ORDER OF OP:
-## Refactor all methods into smaller classes
+import classes
+
 
 place_holder_methods = classes.PlaceHolderMethods()
 main_data = classes.MainData()
