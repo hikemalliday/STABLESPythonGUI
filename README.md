@@ -2,7 +2,7 @@
 
 #### The STABLES app is a desktop app for Project1999. It is a log parsing app that reads / writes to a local SQLite database.
 
-For installion instruction, please head to the wiki
+For installion instructions, please head to the wiki
 
 Features:
 
