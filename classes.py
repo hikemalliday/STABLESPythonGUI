@@ -7,9 +7,9 @@ import json
 import os
 from tkinter import scrolledtext
 import re
-import mymodules
+
 from tkinter import messagebox
-import subprocess
+
 import threading
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -73,10 +73,10 @@ class InitialFetch:
         self.misc_methods_instance = misc_methods_instance
         self.character_methods_instance = character_methods_instance
         self.misc_methods_instance = misc_methods_instance
-        self.misc_methods_instance.fetch_eq_dir()
         self.misc_methods_instance.create_tables()
+        self.misc_methods_instance.fetch_eq_dir()
         self.character_methods_instance.fetch_all_characters()
-
+        
 class MainData:
     def __init__(self):
         pass
@@ -279,7 +279,7 @@ class MainWindow:
             self.inventory_methods_instance.create_inventory(name)
             
         elif option == 'Copy UI':
-            self.copy_ui(char_class, name)
+            self.right_click_methods_instance.copy_ui(char_class, name)
         
         elif option == 'Get Camp Location':
             self.character_methods_instance.get_camp_location(name)
@@ -1876,11 +1876,11 @@ class MiscMethods:
         conn = self.create_connection('./stables.db')
         c = conn.cursor()
         c.execute("""SELECT * FROM eqDir""")
+        
         try:
             self.data.eq_dir = c.fetchall()[0][0]
             return
-            
-            
+          
         except Exception as e:
             print('returning exception / c:/r99')
             self.data.eq_dir = 'c:/r99' 
