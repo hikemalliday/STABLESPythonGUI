@@ -1,6 +1,6 @@
 # STABLESPythonGUI
 
-#### The STABLES app is a desktop app for Project1999. It is a log parsing app that reads / writes to a local SQLite database.
+#### The STABLES app is a desktop app for Everquest (an MMORPG). It is a log parsing app that reads / writes to a local SQLite database.
 
 For installion instructions, please head to the wiki
 
