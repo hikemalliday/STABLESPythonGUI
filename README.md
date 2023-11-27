@@ -18,11 +18,11 @@ Parse your character's spellbooks to see which spells are 'missing' from your sp
 
 Parse your character's log files to see where they are camped out at. This updates the 'location' column for a character.
 ![Campout Location Example](https://cdn.discordapp.com/attachments/1162507378340679751/1162509466709799002/image.png?ex=653c324f&is=6529bd4f&hm=0d2a62085f8d52877faf292d705d3414134c3206979b6accaeca67e58d863074&)
-* **Parse for Yellow Text:**
+* **Parse for Yellow Text (PvP kills):**
 
 Parses all of your log files and writes the Yellow Text's into the local DB.
 ![Yellow Text Table Example](https://cdn.discordapp.com/attachments/1162507378340679751/1162509733429780531/image.png?ex=653c328e&is=6529bd8e&hm=3c685b7fde0e385d31d18773ef7955f7f807742a71158a1f21cde362974210ec&)
-* **Monitor logs for Yellow Texts in real time:**
+* **Monitor logs for Yellow Texts (PvP kills) in real time:**
 
 Monitors the log file of the character you are playing. When a Yellow Text happens, the app will printscreen and dump a JPEG file in the local folder '/killshots'.
 This image was taken with this feature. Notice the dead enemy is midair still falling to the ground:
