@@ -26,6 +26,11 @@ Parse your character's log files to see where they are camped out at. This updat
 Parses all of your log files and writes the Yellow Text's into the local DB.
 ![Yellow Text Table Example](https://cdn.discordapp.com/attachments/1162507378340679751/1162509733429780531/image.png?ex=653c328e&is=6529bd8e&hm=3c685b7fde0e385d31d18773ef7955f7f807742a71158a1f21cde362974210ec&)
 
+# Dev Notes:
+I initially created the app without classes. I reached about two thousand lines of code, and the complexity started to increase. At this point a senior dev friend of mine suggested to use OOP to attempt to lessen complexity. So, I did a massive refactor and used classes. This is my second attempt at OOP (the first being a python based Checkers game). While it is certainly much easier for me post refactor to work on the program, I discovered that it is flawed. I implemented dependency injection, and I soon discovered that my program is ridden with 'circular dependency'. I had to devise some strange problem solving solutions that have some very bad 'code smell.' Regardless of this, I learned a lot (I even learned what dependency injection even means through googling direct problems I was encountering). Overall I am pleased with this program, as it provides a lot of value for me and my guildmates. 
+
+I will likely re-write this program under the guidance of a senior dev friend of mine, in an attempt to really make it more profressional, as well as with a more modern looking UI. The library I used for the GUI (PyTkinter) is very easy to create with, but it looks like something straight out of 1997.
+
 - **Monitor logs for Yellow Texts (PvP kills) in real time:**
 
 Monitors the log file of the character you are playing. When a Yellow Text happens, the app will printscreen and dump a JPEG file in the local folder '/killshots'.
