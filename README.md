@@ -2,7 +2,7 @@
 
 #### The STABLES app is a desktop app for Project1999. It is a log parsing app that reads / writes to a local SQLite database.
 
-For installion instructions, please head to the wiki
+For installation instructions, please head to the wiki
 
 Features:
 
@@ -28,6 +28,15 @@ Parses all of your log files and writes the Yellow Text's into the local DB.
 
 - **Monitor logs for Yellow Texts (PvP kills) in real time:**
 
-Monitors the log file of the character you are playing. When a Yellow Text happens, the app will printscreen and dump a JPEG file in the local folder '/killshots'.
+Monitors the log file of the character you are playing. 
+
+When a Yellow Text happens, the app will printscreen and dump a JPEG file in the local folder '/killshots'.
 This image was taken with this feature. Notice the dead enemy is midair still falling to the ground:
 ![Killshot JPEG example](https://cdn.discordapp.com/attachments/1058479766644199567/1161750968975773827/image.png?ex=65396fe7&is=6526fae7&hm=76ebb4b3ec718318d4fa53c224e0199e2c4c32056ff577ae078ec530250fd387&)
+
+# Dev Notes:
+I initially created the app without classes. I reached about two thousand lines of code, and the complexity started to increase. At this point a senior dev friend of mine suggested to use OOP to attempt to lessen complexity. So, I did a massive refactor and used classes. This is my second attempt at OOP (the first being a python based Checkers game). While it is certainly much easier for me to work on the program post refactor, I discovered that it is flawed. I implemented dependency injection, and I soon discovered that my program is ridden with 'circular dependency'. My solution was to create 'placeholder methods'. I needed mock methods to exist, so that the program would launch without crashing. This buys time for the dependency injections to resolve. Overall I am pleased with this program, as it provides a lot of value for me and my guildmates. 
+
+The PvP kill screenshot feature is my first time ever using multithreading. I needed to use multithreading, so that the feature could be activated (it actively scans folders and files, and watches for killshots to happen in game) without locking up the app. This feature is one of the things I am most proud of that I have created. The feature first monitors the folder containing all the log files, then when it finds out which file is being modified in real time, it starts monitoring that file. Then, using REGEX, we wait for a pvp kill to happen. A screenshot of the monitor is then taken and saved into a folder.
+
+I will likely re-write this program under the guidance of a senior dev friend of mine, in an attempt to really make it more professional, as well as with a more modern looking UI. The library I used for the GUI (PyTkinter) is very easy to create with, but it looks like something straight out of 1997.
