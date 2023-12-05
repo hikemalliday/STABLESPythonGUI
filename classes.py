@@ -1,22 +1,21 @@
-from tkinter import *
-from tkinter import ttk
-import sqlite3
+from PIL import ImageGrab
 from sqlite3 import Error
+from tkinter import *
 from tkinter import Menu
+from tkinter import messagebox
+from tkinter import scrolledtext
+from tkinter import ttk
+from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
 import json
 import os
-from tkinter import scrolledtext
-import re
-
-from tkinter import messagebox
-
-import threading
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
-import time
 import pygtail
-from PIL import ImageGrab
+import re
+import sqlite3
+import threading
+import time
 
+# TODO: Fix circular dependencies, modulize the classes
 
 class PlaceHolderMethods:
     def row_right_click(self, e):
@@ -67,6 +66,7 @@ class PlaceHolderMethods:
         pass
     def create_connection(self, none):
         pass
+
 class InitialFetch:
     def __init__(self, data_instance, misc_methods_instance, character_methods_instance):
         self.data = data_instance
