@@ -31,7 +31,7 @@ Parses all of your log files and writes the Yellow Text's into the local DB.
 Monitors the log file of the character you are playing. 
 
 When a Yellow Text happens, the app will printscreen and dump a JPEG file in the local folder '/killshots'.
-This image was taken with this feature. Notice the dead enemy is midair still falling to the ground:
+The image shown below was taken with this feature. Notice the dead enemy is midair still falling to the ground:
 ![Killshot JPEG example](https://cdn.discordapp.com/attachments/1058479766644199567/1161750968975773827/image.png?ex=65396fe7&is=6526fae7&hm=76ebb4b3ec718318d4fa53c224e0199e2c4c32056ff577ae078ec530250fd387&)
 
 # Dev Notes:
